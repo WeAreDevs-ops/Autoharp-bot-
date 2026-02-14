@@ -78,7 +78,7 @@ function createStatsEmbed(data, discordUser) {
     .setTitle(`STATS FOR @${data.discordUsername}`)
     .setColor(0x2b2d31)
     .setThumbnail(discordUser.displayAvatarURL({ dynamic: true }))
-    .setDescription(`**AUTOHAR STATS**`)
+    
     .addFields(
       {
         name: '**TODAY STATS**',
