@@ -13,7 +13,7 @@ const axios = require('axios');
 // ===== ENV =====
 const TOKEN = process.env.BOT_TOKEN;
 const CLIENT_ID = process.env.CLIENT_ID;
-const GUILD_ID = process.env.GUILD_ID; // Remove if using global
+const GUILD_ID = process.env.GUILD_ID; // Remove if using global commands
 
 // ===== CLIENT =====
 const client = new Client({
@@ -72,32 +72,48 @@ async function fetchStats(discordId) {
   }
 }
 
-// ===== CREATE EMBED =====
+// ===== EMBED BUILDER =====
 function createStatsEmbed(data, discordUser) {
   return new EmbedBuilder()
     .setTitle(`STATS FOR @${data.discordUsername}`)
     .setColor(0x2b2d31)
     .setThumbnail(discordUser.displayAvatarURL({ dynamic: true }))
-    
+    .setDescription(`**AUTOHAR STATS**`)
     .addFields(
       {
         name: '**TODAY STATS**',
-        value: `Hit: ${data.stats?.todayAccounts ?? 0}\nSummary: ${data.stats?.todaySummary ?? 0}\nRobux: ${data.stats?.todayRobux ?? 0}\nRAP: ${data.stats?.todayRAP ?? 0}`,
+        value: `Hit: ${data.todayStats?.hits ?? 0}
+Refer: ${data.todayStats?.refer ?? 0}`,
         inline: false
       },
       {
-        name: '**TOTAL STATS**',
-        value: `Hit: ${data.stats?.totalAccounts ?? 0}\nSummary: ${data.stats?.totalSummary ?? 0}\nRobux: ${data.stats?.totalRobux ?? 0}\nRAP: ${data.stats?.totalRAP ?? 0}`,
+        name: '**BIGGEST HITS**',
+        value: `Summary: ${(data.biggestHits?.summary ?? 0).toLocaleString()}
+RAP: ${data.biggestHits?.rap ?? 0}
+Robux: ${data.biggestHits?.robux ?? 0}`,
         inline: false
       },
       {
-        name: '**NETWORK STATS**',
-        value: `Direct Referrals: ${data.networkStats?.directReferrals ?? 0}\nTotal Network: ${data.networkStats?.totalNetwork ?? 0}\nReferral Code: ${data.networkStats?.referralCode ?? "N/A"}`,
+        name: '**TOTAL HIT STATS**',
+        value: `Summary: ${(data.totalStats?.summary ?? 0).toLocaleString()}
+RAP: ${data.totalStats?.rap ?? 0}
+Robux: ${data.totalStats?.robux ?? 0}`,
         inline: false
       },
       {
         name: '**LAST HIT**',
-        value: `User: ${data.lastHit?.username ?? "N/A"}\nRobux: ${data.lastHit?.robux ?? 0}\nTimestamp: ${data.lastHit?.timestamp ? new Date(data.lastHit.timestamp).toLocaleString() : "N/A"}`,
+        value: `User: ${data.lastHit?.user ?? "N/A"}
+Summary: ${data.lastHit?.summary ?? 0}
+RAP: ${data.lastHit?.rap ?? 0}
+Robux: ${data.lastHit?.robux ?? 0}
+Time: ${data.lastHit?.timestamp ? new Date(data.lastHit.timestamp).toLocaleString() : "N/A"}`,
+        inline: false
+      },
+      {
+        name: '**NETWORK STATS**',
+        value: `Direct Referrals: ${data.networkStats?.directReferrals ?? 0}
+Total Network: ${data.networkStats?.totalNetwork ?? 0}
+Referral Code: ${data.networkStats?.referralCode ?? "N/A"}`,
         inline: false
       }
     )
@@ -126,7 +142,11 @@ client.on('interactionCreate', async interaction => {
     }
 
     const embed = createStatsEmbed(data, target);
-    interaction.editReply({ embeds: [embed] });
+
+    interaction.editReply({
+      content: `<@${target.id}>`,
+      embeds: [embed]
+    });
   }
 });
 
@@ -144,7 +164,11 @@ client.on('messageCreate', async message => {
   }
 
   const embed = createStatsEmbed(data, target);
-  message.reply({ embeds: [embed] });
+
+  message.reply({
+    content: `<@${target.id}>`,
+    embeds: [embed]
+  });
 });
 
 // ===== START =====
