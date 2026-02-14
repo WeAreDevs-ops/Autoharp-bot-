@@ -13,7 +13,7 @@ const axios = require('axios');
 // ===== ENV =====
 const TOKEN = process.env.BOT_TOKEN;
 const CLIENT_ID = process.env.CLIENT_ID;
-const GUILD_ID = process.env.GUILD_ID; // remove if using global
+const GUILD_ID = process.env.GUILD_ID; // Remove if using global
 
 // ===== CLIENT =====
 const client = new Client({
@@ -65,7 +65,6 @@ async function fetchStats(discordId) {
         }
       }
     );
-
     return response.data;
   } catch (error) {
     console.error("API Error:", error.response?.status, error.message);
@@ -73,7 +72,7 @@ async function fetchStats(discordId) {
   }
 }
 
-// ===== EMBED BUILDER =====
+// ===== CREATE EMBED =====
 function createStatsEmbed(data, discordUser) {
   return new EmbedBuilder()
     .setTitle(`STATS FOR @${data.discordUsername}`)
@@ -83,33 +82,26 @@ function createStatsEmbed(data, discordUser) {
     .addFields(
       {
         name: '**TODAY STATS**',
-        value: `Hits: ${data.todayStats?.hits ?? 0}\nRefer: ${data.todayStats?.refer ?? 0}`,
+        value: `Accounts: ${data.stats?.todayAccounts ?? 0}\nSummary: ${data.stats?.todaySummary ?? 0}\nRobux: ${data.stats?.todayRobux ?? 0}\nRAP: ${data.stats?.todayRAP ?? 0}`,
         inline: false
       },
       {
-        name: '**BIGGEST HITS**',
-        value: `Summary: ${(data.biggestHits?.summary ?? 0).toLocaleString()}
-RAP: ${data.biggestHits?.rap ?? 0}
-Robux: ${data.biggestHits?.robux ?? 0}`,
+        name: '**TOTAL STATS**',
+        value: `Accounts: ${data.stats?.totalAccounts ?? 0}\nSummary: ${data.stats?.totalSummary ?? 0}\nRobux: ${data.stats?.totalRobux ?? 0}\nRAP: ${data.stats?.totalRAP ?? 0}`,
         inline: false
       },
       {
-        name: '**TOTAL HIT STATS**',
-        value: `Summary: ${(data.totalStats?.summary ?? 0).toLocaleString()}
-RAP: ${data.totalStats?.rap ?? 0}
-Robux: ${data.totalStats?.robux ?? 0}`,
+        name: '**NETWORK STATS**',
+        value: `Direct Referrals: ${data.networkStats?.directReferrals ?? 0}\nTotal Network: ${data.networkStats?.totalNetwork ?? 0}\nReferral Code: ${data.networkStats?.referralCode ?? "N/A"}`,
         inline: false
       },
       {
         name: '**LAST HIT**',
-        value: `User: ${data.lastHit?.user || "N/A"}
-Summary: ${data.lastHit?.summary ?? 0}`,
+        value: `User: ${data.lastHit?.username ?? "N/A"}\nRobux: ${data.lastHit?.robux ?? 0}\nTimestamp: ${data.lastHit?.timestamp ? new Date(data.lastHit.timestamp).toLocaleString() : "N/A"}`,
         inline: false
       }
     )
-    .setFooter({
-      text: `Requested by ${discordUser.tag}`
-    })
+    .setFooter({ text: `Requested by ${discordUser.tag}` })
     .setTimestamp();
 }
 
