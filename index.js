@@ -82,7 +82,7 @@ function createStatsEmbed(data, user) {
 
   return new EmbedBuilder()
     .setColor(0x2b2d31)
-    .setTitle(`Stats for @${data.discordUsername}`)
+    
     .setThumbnail(user.displayAvatarURL({ dynamic: true }))
     .addFields(
       {
