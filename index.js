@@ -8,12 +8,13 @@ const {
   REST,
   EmbedBuilder
 } = require('discord.js');
+
 const axios = require('axios');
 
 // ===== ENV =====
 const TOKEN = process.env.BOT_TOKEN;
 const CLIENT_ID = process.env.CLIENT_ID;
-const GUILD_ID = process.env.GUILD_ID; // Remove if using global commands
+const GUILD_ID = process.env.GUILD_ID; // remove if global
 
 // ===== CLIENT =====
 const client = new Client({
@@ -42,14 +43,13 @@ async function registerCommands() {
   const rest = new REST({ version: '10' }).setToken(TOKEN);
 
   try {
-    console.log('🔄 Registering slash commands...');
     await rest.put(
       Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID),
       { body: commands }
     );
     console.log('✅ Slash command registered.');
-  } catch (error) {
-    console.error('❌ Slash command error:', error);
+  } catch (err) {
+    console.error(err);
   }
 }
 
@@ -65,6 +65,7 @@ async function fetchStats(discordId) {
         }
       }
     );
+
     return response.data;
   } catch (error) {
     console.error("API Error:", error.response?.status, error.message);
@@ -73,51 +74,60 @@ async function fetchStats(discordId) {
 }
 
 // ===== EMBED BUILDER =====
-function createStatsEmbed(data, discordUser) {
+function createStatsEmbed(data, user) {
+
+  const lastHitTime = data.lastHit?.timestamp
+    ? `<t:${Math.floor(new Date(data.lastHit.timestamp).getTime() / 1000)}:R>`
+    : "N/A";
+
   return new EmbedBuilder()
-    .setTitle(`STATS FOR @${data.discordUsername}`)
     .setColor(0x2b2d31)
-    .setThumbnail(discordUser.displayAvatarURL({ dynamic: true }))
-    
+    .setTitle(`Stats for @${data.discordUsername}`)
+    .setThumbnail(user.displayAvatarURL({ dynamic: true }))
     .addFields(
       {
-        name: '**TODAY STATS**',
-        value: `Hit: ${data.todayStats?.hits ?? 0}
-Refer: ${data.todayStats?.refer ?? 0}`,
+        name: '📊 TODAY STATS',
+        value:
+`Hits: ${data.todayStats?.hits ?? 0}
+Summary: ${(data.todayStats?.summary ?? 0).toLocaleString()}
+RAP: ${(data.todayStats?.rap ?? 0).toLocaleString()}
+Robux: ${(data.todayStats?.robux ?? 0).toLocaleString()}`,
         inline: false
       },
       {
-        name: '**BIGGEST HITS**',
-        value: `Summary: ${(data.biggestHits?.summary ?? 0).toLocaleString()}
-RAP: ${data.biggestHits?.rap ?? 0}
-Robux: ${data.biggestHits?.robux ?? 0}`,
+        name: '🏆 TOTAL STATS',
+        value:
+`Total Hits: ${data.totalStats?.hits ?? 0}
+Summary: ${(data.totalStats?.summary ?? 0).toLocaleString()}
+RAP: ${(data.totalStats?.rap ?? 0).toLocaleString()}
+Robux: ${(data.totalStats?.robux ?? 0).toLocaleString()}`,
         inline: false
       },
       {
-        name: '**TOTAL HIT STATS**',
-        value: `Summary: ${(data.totalStats?.summary ?? 0).toLocaleString()}
-RAP: ${data.totalStats?.rap ?? 0}
-Robux: ${data.totalStats?.robux ?? 0}`,
+        name: '🔥 BIGGEST HIT',
+        value:
+`Summary: ${(data.biggestHits?.summary ?? 0).toLocaleString()}
+RAP: ${(data.biggestHits?.rap ?? 0).toLocaleString()}
+Robux: ${(data.biggestHits?.robux ?? 0).toLocaleString()}`,
         inline: false
       },
       {
-        name: '**LAST HIT**',
-        value: `User: ${data.lastHit?.user ?? "N/A"}
-Summary: ${data.lastHit?.summary ?? 0}
-RAP: ${data.lastHit?.rap ?? 0}
-Robux: ${data.lastHit?.robux ?? 0}
-Time: ${data.lastHit?.timestamp ? new Date(data.lastHit.timestamp).toLocaleString() : "N/A"}`,
+        name: '🕒 LAST HIT',
+        value:
+`User: ${data.lastHit?.user ?? "N/A"}
+Time: ${lastHitTime}`,
         inline: false
       },
       {
-        name: '**NETWORK STATS**',
-        value: `Direct Referrals: ${data.networkStats?.directReferrals ?? 0}
+        name: '🌐 NETWORK',
+        value:
+`Direct Referrals: ${data.networkStats?.directReferrals ?? 0}
 Total Network: ${data.networkStats?.totalNetwork ?? 0}
 Referral Code: ${data.networkStats?.referralCode ?? "N/A"}`,
         inline: false
       }
     )
-    .setFooter({ text: `Requested by ${discordUser.tag}` })
+    .setFooter({ text: `Requested by ${user.tag}` })
     .setTimestamp();
 }
 
@@ -131,6 +141,7 @@ client.on('interactionCreate', async interaction => {
   if (!interaction.isChatInputCommand()) return;
 
   if (interaction.commandName === 'stats') {
+
     const target = interaction.options.getUser('user') || interaction.user;
 
     await interaction.deferReply();
