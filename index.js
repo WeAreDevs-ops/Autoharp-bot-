@@ -82,12 +82,12 @@ function createStatsEmbed(data, discordUser) {
     .addFields(
       {
         name: '**TODAY STATS**',
-        value: `Accounts: ${data.stats?.todayAccounts ?? 0}\nSummary: ${data.stats?.todaySummary ?? 0}\nRobux: ${data.stats?.todayRobux ?? 0}\nRAP: ${data.stats?.todayRAP ?? 0}`,
+        value: `Hit: ${data.stats?.todayAccounts ?? 0}\nSummary: ${data.stats?.todaySummary ?? 0}\nRobux: ${data.stats?.todayRobux ?? 0}\nRAP: ${data.stats?.todayRAP ?? 0}`,
         inline: false
       },
       {
         name: '**TOTAL STATS**',
-        value: `Accounts: ${data.stats?.totalAccounts ?? 0}\nSummary: ${data.stats?.totalSummary ?? 0}\nRobux: ${data.stats?.totalRobux ?? 0}\nRAP: ${data.stats?.totalRAP ?? 0}`,
+        value: `Hit: ${data.stats?.totalAccounts ?? 0}\nSummary: ${data.stats?.totalSummary ?? 0}\nRobux: ${data.stats?.totalRobux ?? 0}\nRAP: ${data.stats?.totalRAP ?? 0}`,
         inline: false
       },
       {
