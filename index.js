@@ -10,10 +10,10 @@ const {
 } = require('discord.js');
 const axios = require('axios');
 
-// ===== ENV VARIABLES =====
+// ===== ENV =====
 const TOKEN = process.env.BOT_TOKEN;
 const CLIENT_ID = process.env.CLIENT_ID;
-const GUILD_ID = process.env.GUILD_ID; // optional (guild deploy)
+const GUILD_ID = process.env.GUILD_ID; // remove if using global
 
 // ===== CLIENT =====
 const client = new Client({
@@ -49,7 +49,7 @@ async function registerCommands() {
     );
     console.log('✅ Slash command registered.');
   } catch (error) {
-    console.error('❌ Failed to register commands:', error);
+    console.error('❌ Slash command error:', error);
   }
 }
 
@@ -57,47 +57,68 @@ async function registerCommands() {
 async function fetchStats(discordId) {
   try {
     const response = await axios.get(
-      `https://www.incbot.site/api/bot/stats/discord/${discordId}`
+      `https://www.incbot.site/api/bot/stats/discord/${discordId}`,
+      {
+        headers: {
+          "User-Agent": "Incbot-Discord-Bot",
+          "Accept": "application/json"
+        }
+      }
     );
+
     return response.data;
   } catch (error) {
-    console.error('API Error:', error.message);
+    console.error("API Error:", error.response?.status, error.message);
     return null;
   }
 }
 
-// ===== CREATE EMBED =====
-function createStatsEmbed(data) {
+// ===== EMBED BUILDER =====
+function createStatsEmbed(data, discordUser) {
   return new EmbedBuilder()
-    .setTitle(`📊 Stats for ${data.discordUsername}`)
-    .setColor(0x5865F2)
+    .setTitle(`STATS FOR @${data.discordUsername}`)
+    .setColor(0x2b2d31)
+    .setThumbnail(discordUser.displayAvatarURL({ dynamic: true }))
+    .setDescription(`**AUTOHAR STATS**`)
     .addFields(
-      { name: '📁 Directory', value: data.directory || 'N/A', inline: true },
-      { name: '💎 Service Type', value: data.serviceType || 'N/A', inline: true },
-      { name: '👤 Total Accounts', value: String(data.stats.totalAccounts), inline: true },
-      { name: '💰 Total Robux', value: String(data.stats.totalRobux), inline: true },
-      { name: '📅 Today Accounts', value: String(data.stats.todayAccounts), inline: true },
-      { name: '🤝 Direct Referrals', value: String(data.networkStats.directReferrals), inline: true },
-      { name: '🌐 Total Network', value: String(data.networkStats.totalNetwork), inline: true },
-      { name: '🎟 Referral Code', value: data.networkStats.referralCode, inline: true },
       {
-        name: '🔥 Last Hit',
-        value: data.lastHit
-          ? `User: ${data.lastHit.username}\nRobux: ${data.lastHit.robux}`
-          : 'No recent hit',
+        name: '**TODAY STATS**',
+        value: `Hits: ${data.todayStats?.hits ?? 0}\nRefer: ${data.todayStats?.refer ?? 0}`,
+        inline: false
+      },
+      {
+        name: '**BIGGEST HITS**',
+        value: `Summary: ${(data.biggestHits?.summary ?? 0).toLocaleString()}
+RAP: ${data.biggestHits?.rap ?? 0}
+Robux: ${data.biggestHits?.robux ?? 0}`,
+        inline: false
+      },
+      {
+        name: '**TOTAL HIT STATS**',
+        value: `Summary: ${(data.totalStats?.summary ?? 0).toLocaleString()}
+RAP: ${data.totalStats?.rap ?? 0}
+Robux: ${data.totalStats?.robux ?? 0}`,
+        inline: false
+      },
+      {
+        name: '**LAST HIT**',
+        value: `User: ${data.lastHit?.user || "N/A"}
+Summary: ${data.lastHit?.summary ?? 0}`,
         inline: false
       }
     )
-    .setFooter({ text: `Discord ID: ${data.discordId}` })
+    .setFooter({
+      text: `Requested by ${discordUser.tag}`
+    })
     .setTimestamp();
 }
 
 // ===== READY =====
-client.once('ready', () => {
+client.once('clientReady', () => {
   console.log(`🤖 Logged in as ${client.user.tag}`);
 });
 
-// ===== SLASH COMMAND HANDLER =====
+// ===== SLASH COMMAND =====
 client.on('interactionCreate', async interaction => {
   if (!interaction.isChatInputCommand()) return;
 
@@ -112,7 +133,7 @@ client.on('interactionCreate', async interaction => {
       return interaction.editReply('❌ Failed to fetch stats.');
     }
 
-    const embed = createStatsEmbed(data);
+    const embed = createStatsEmbed(data, target);
     interaction.editReply({ embeds: [embed] });
   }
 });
@@ -130,7 +151,7 @@ client.on('messageCreate', async message => {
     return message.reply('❌ Failed to fetch stats.');
   }
 
-  const embed = createStatsEmbed(data);
+  const embed = createStatsEmbed(data, target);
   message.reply({ embeds: [embed] });
 });
 
