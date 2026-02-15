@@ -11,12 +11,11 @@ const {
 
 const axios = require('axios');
 
-// ===== ENV =====
+
 const TOKEN = process.env.BOT_TOKEN;
 const CLIENT_ID = process.env.CLIENT_ID;
-const GUILD_ID = process.env.GUILD_ID; // remove if global
+const GUILD_ID = process.env.GUILD_ID;
 
-// ===== CLIENT =====
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -25,7 +24,7 @@ const client = new Client({
   ]
 });
 
-// ===== REGISTER SLASH COMMAND =====
+
 async function registerCommands() {
   const commands = [
     new SlashCommandBuilder()
@@ -53,7 +52,7 @@ async function registerCommands() {
   }
 }
 
-// ===== FETCH API =====
+
 async function fetchStats(discordId) {
   try {
     const response = await axios.get(
@@ -73,7 +72,6 @@ async function fetchStats(discordId) {
   }
 }
 
-// ===== EMBED BUILDER =====
 function createStatsEmbed(data, user) {
 
   const lastHitTime = data.lastHit?.timestamp
@@ -131,12 +129,12 @@ Referral Code: ${data.networkStats?.referralCode ?? "N/A"}`,
     .setTimestamp();
 }
 
-// ===== READY =====
+
 client.once('clientReady', () => {
   console.log(`🤖 Logged in as ${client.user.tag}`);
 });
 
-// ===== SLASH COMMAND =====
+
 client.on('interactionCreate', async interaction => {
   if (!interaction.isChatInputCommand()) return;
 
@@ -161,7 +159,7 @@ client.on('interactionCreate', async interaction => {
   }
 });
 
-// ===== PREFIX COMMAND =====
+
 client.on('messageCreate', async message => {
   if (message.author.bot) return;
   if (!message.content.startsWith('!stats')) return;
@@ -182,6 +180,6 @@ client.on('messageCreate', async message => {
   });
 });
 
-// ===== START =====
+
 registerCommands();
 client.login(TOKEN);
