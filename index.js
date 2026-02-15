@@ -86,7 +86,7 @@ function createStatsEmbed(data, user) {
     .setThumbnail(user.displayAvatarURL({ dynamic: true }))
     .addFields(
       {
-        name: '📊 TODAY STATS',
+        name: '<:emoji_1:1472383243100622992> TODAY STATS',
         value:
 `Hits: ${data.todayStats?.hits ?? 0}
 Summary: ${(data.todayStats?.summary ?? 0).toLocaleString()}
@@ -95,7 +95,7 @@ Robux: ${(data.todayStats?.robux ?? 0).toLocaleString()}`,
         inline: false
       },
       {
-        name: '🏆 TOTAL STATS',
+        name: '<:emoji_1:1472383243100622992> TOTAL STATS',
         value:
 `Total Hits: ${data.totalStats?.hits ?? 0}
 Summary: ${(data.totalStats?.summary ?? 0).toLocaleString()}
@@ -104,7 +104,7 @@ Robux: ${(data.totalStats?.robux ?? 0).toLocaleString()}`,
         inline: false
       },
       {
-        name: '🔥 BIGGEST HIT',
+        name: '<:emoji_1:1472383243100622992> BIGGEST HIT',
         value:
 `Summary: ${(data.biggestHits?.summary ?? 0).toLocaleString()}
 RAP: ${(data.biggestHits?.rap ?? 0).toLocaleString()}
@@ -112,14 +112,14 @@ Robux: ${(data.biggestHits?.robux ?? 0).toLocaleString()}`,
         inline: false
       },
       {
-        name: '🕒 LAST HIT',
+        name: '<:emoji_2:1472383270443417761> LAST HIT',
         value:
 `User: ${data.lastHit?.user ?? "N/A"}
 Time: ${lastHitTime}`,
         inline: false
       },
       {
-        name: '🌐 NETWORK',
+        name: '<:emoji_3:1472383291872121016> NETWORK',
         value:
 `Direct Referrals: ${data.networkStats?.directReferrals ?? 0}
 Total Network: ${data.networkStats?.totalNetwork ?? 0}
