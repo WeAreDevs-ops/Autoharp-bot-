@@ -36,6 +36,10 @@ async function registerCommands() {
           .setDescription('User to check stats for')
           .setRequired(false)
       )
+      .toJSON(),
+    new SlashCommandBuilder()
+      .setName('tophitters')
+      .setDescription('Show top 3 hitters today')
       .toJSON()
   ];
 
@@ -68,6 +72,25 @@ async function fetchStats(discordId) {
     return response.data;
   } catch (error) {
     console.error("API Error:", error.response?.status, error.message);
+    return null;
+  }
+}
+
+
+async function fetchLeaderboard() {
+  try {
+    const response = await axios.get(
+      'https://www.incbot.site/api/bot/leaderboard?limit=3',
+      {
+        headers: {
+          "User-Agent": "Incbot-Discord-Bot",
+          "Accept": "application/json"
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Leaderboard API Error:", error.response?.status, error.message);
     return null;
   }
 }
@@ -137,6 +160,39 @@ client.once('clientReady', () => {
 
 client.on('interactionCreate', async interaction => {
   if (!interaction.isChatInputCommand()) return;
+
+  if (interaction.commandName === 'tophitters') {
+    await interaction.deferReply();
+
+    const leaderboard = await fetchLeaderboard();
+
+    if (!leaderboard || leaderboard.length === 0) {
+      return interaction.editReply('❌ No hitters today yet.');
+    }
+
+    const medals = ['🥇', '🥈', '🥉'];
+
+    const mainEmbed = new EmbedBuilder()
+      .setColor(0x2b2d31)
+      .setTitle('🏆 TOP HITTERS TODAY')
+      .setTimestamp();
+
+    const hitterEmbeds = leaderboard.map((hitter, i) => {
+      const avatarUrl = hitter.discordAvatar && hitter.discordId
+        ? `https://cdn.discordapp.com/avatars/${hitter.discordId}/${hitter.discordAvatar}.png`
+        : 'https://cdn.discordapp.com/embed/avatars/0.png';
+
+      return new EmbedBuilder()
+        .setColor(0x2b2d31)
+        .setAuthor({
+          name: `${medals[i]} ${hitter.displayName} | ${hitter.todayHits} Hit${hitter.todayHits !== 1 ? 's' : ''}`,
+          iconURL: avatarUrl
+        })
+        .setDescription(`Last Hit: **${hitter.lastHitUser || 'N/A'}**`);
+    });
+
+    return interaction.editReply({ embeds: [mainEmbed, ...hitterEmbeds] });
+  }
 
   if (interaction.commandName === 'stats') {
 
