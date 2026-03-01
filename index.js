@@ -218,6 +218,40 @@ client.on('interactionCreate', async interaction => {
 
 client.on('messageCreate', async message => {
   if (message.author.bot) return;
+
+  // !top command
+  if (message.content.startsWith('!top')) {
+    const leaderboard = await fetchLeaderboard();
+
+    if (!leaderboard || leaderboard.length === 0) {
+      return message.reply('❌ No hitters today yet.');
+    }
+
+    const medals = ['🥇', '🥈', '🥉'];
+
+    const mainEmbed = new EmbedBuilder()
+      .setColor(0x2b2d31)
+      .setTitle('🏆 TOP HITTERS TODAY')
+      .setTimestamp();
+
+    const hitterEmbeds = leaderboard.map((hitter, i) => {
+      const avatarUrl = hitter.discordAvatar && hitter.discordId
+        ? `https://cdn.discordapp.com/avatars/${hitter.discordId}/${hitter.discordAvatar}.png`
+        : 'https://cdn.discordapp.com/embed/avatars/0.png';
+
+      return new EmbedBuilder()
+        .setColor(0x2b2d31)
+        .setAuthor({
+          name: `${medals[i]} ${hitter.displayName} | ${hitter.todayHits} Hit${hitter.todayHits !== 1 ? 's' : ''}`,
+          iconURL: avatarUrl
+        })
+        .setDescription(`Last Hit: **${hitter.lastHitUser || 'N/A'}**`);
+    });
+
+    return message.reply({ embeds: [mainEmbed, ...hitterEmbeds] });
+  }
+
+  // !stats command
   if (!message.content.startsWith('!stats')) return;
 
   const target = message.mentions.users.first() || message.author;
