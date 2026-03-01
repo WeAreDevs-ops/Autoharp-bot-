@@ -170,11 +170,11 @@ client.on('interactionCreate', async interaction => {
       return interaction.editReply('❌ No hitters today yet.');
     }
 
-    const medals = ['🥇', '🥈', '🥉'];
+    const medals = ['<:diamond:1477630736293953596>', '<:emerald:1477630680866230344>', '<:gold:1477630787607072879>'];
 
     const mainEmbed = new EmbedBuilder()
       .setColor(0x2b2d31)
-      .setTitle('🏆 TOP HITTERS TODAY')
+      .setTitle('<:Podium:1477634184746106961> TOP HITTERS TODAY')
       .setTimestamp();
 
     const hitterEmbeds = leaderboard.map((hitter, i) => {
@@ -227,11 +227,11 @@ client.on('messageCreate', async message => {
       return message.reply('❌ No hitters today yet.');
     }
 
-    const medals = ['🥇', '🥈', '🥉'];
+    const medals = ['<:diamond:1477630736293953596>', '<:emerald:1477630680866230344>', '<:gold:1477630787607072879>'];
 
     const mainEmbed = new EmbedBuilder()
       .setColor(0x2b2d31)
-      .setTitle('🏆 TOP HITTERS TODAY')
+      .setTitle('<:Podium:1477634184746106961> TOP HITTERS TODAY')
       .setTimestamp();
 
     const hitterEmbeds = leaderboard.map((hitter, i) => {
