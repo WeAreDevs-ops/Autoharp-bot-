@@ -103,7 +103,10 @@ function createStatsEmbed(data, user) {
 
   return new EmbedBuilder()
     .setColor(0x2b2d31)
-    
+    .setAuthor({
+      name: `${user.username} | Extension x AutoHar`,
+      iconURL: user.displayAvatarURL({ dynamic: true })
+    })
     .setThumbnail(user.displayAvatarURL({ dynamic: true }))
     .addFields(
       {
@@ -185,10 +188,11 @@ client.on('interactionCreate', async interaction => {
       return new EmbedBuilder()
         .setColor(0x2b2d31)
         .setAuthor({
-          name: `${medals[i]} ${hitter.displayName} | ${hitter.todayHits} Hit${hitter.todayHits !== 1 ? 's' : ''}`,
+          name: `Extension x AutoHar`,
           iconURL: avatarUrl
         })
-        .setDescription(`Last Hit: **${hitter.lastHitUser || 'N/A'}**`);
+        .setDescription(`${i + 1}. ${medals[i]} ${hitter.displayName} | ${hitter.todayHits} Hit${hitter.todayHits !== 1 ? 's' : ''}
+Last Hit: **${hitter.lastHitUser || 'N/A'}**`);
     });
 
     return interaction.editReply({ embeds: [mainEmbed, ...hitterEmbeds] });
@@ -242,10 +246,11 @@ client.on('messageCreate', async message => {
       return new EmbedBuilder()
         .setColor(0x2b2d31)
         .setAuthor({
-          name: `${medals[i]} ${hitter.displayName} | ${hitter.todayHits} Hit${hitter.todayHits !== 1 ? 's' : ''}`,
+          name: `Extension x AutoHar`,
           iconURL: avatarUrl
         })
-        .setDescription(`Last Hit: **${hitter.lastHitUser || 'N/A'}**`);
+        .setDescription(`${i + 1}. ${medals[i]} ${hitter.displayName} | ${hitter.todayHits} Hit${hitter.todayHits !== 1 ? 's' : ''}
+Last Hit: **${hitter.lastHitUser || 'N/A'}**`);
     });
 
     return message.reply({ embeds: [mainEmbed, ...hitterEmbeds] });
