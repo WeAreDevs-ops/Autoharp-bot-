@@ -63,7 +63,7 @@ async function registerCommands() {
 
   try {
     await rest.put(
-      Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID),
+      Routes.applicationCommands(CLIENT_ID),
       { body: commands }
     );
     console.log('✅ Slash command registered.');
